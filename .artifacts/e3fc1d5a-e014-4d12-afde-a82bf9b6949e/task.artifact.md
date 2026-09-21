@@ -1,0 +1,7 @@
+- [x] `[x]` Fix raw `Comparable` in `Lance.java`
+- [x] `[x]` Close `Cursor` and handle warnings in `UsuarioDAO.java`
+- [x] `[x]` Make `ViewHolder` static in `ListaLeilaoAdapter.java`
+- [x] `[x]` Make `ViewHolder` static and optimize `adiciona` in `ListaUsuarioAdapter.java`
+- [x] `[x]` Add `contentDescription` in `activity_lances_leilao.xml`
+- [x] `[x]` Add `contentDescription` in `activity_lista_usuario.xml`
+- [x] `[x]` Change `inputType` to `numberDecimal` in `form_lance.xml`

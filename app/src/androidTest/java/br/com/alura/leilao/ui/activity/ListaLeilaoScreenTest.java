@@ -1,0 +1,99 @@
+package br.com.alura.leilao.ui.activity;
+
+import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.assertion.ViewAssertions.*;
+import static androidx.test.espresso.matcher.ViewMatchers.*;
+
+import androidx.test.core.app.ActivityScenario;
+import androidx.test.espresso.IdlingRegistry;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+
+import net.datafaker.Faker;
+
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import java.io.IOException;
+import java.util.Locale;
+
+import br.com.alura.leilao.api.retrofit.client.TesteWebClient;
+import br.com.alura.leilao.api.idlingresource.AppIdlingResource;
+import br.com.alura.leilao.model.Leilao;
+
+@RunWith(AndroidJUnit4.class)
+public class ListaLeilaoScreenTest {
+
+    private ActivityScenario<ListaLeilaoActivity> scenario;
+    //private LeilaoWebClient webClient = new LeilaoWebClient();
+
+    final TesteWebClient webClient = new TesteWebClient();
+    final Faker faker = new Faker(new Locale("pt-BR"));
+
+    private void cleanDB() throws IOException {
+        boolean cdb = webClient.cleanDB();
+        if (!cdb) {
+            Assert.fail("Fail to cliean DB");
+        }
+    }
+
+    @Before
+    public void setup() throws IOException {
+        IdlingRegistry.getInstance().register(AppIdlingResource.getIdlingResource());
+        cleanDB();
+    }
+
+    @Test
+    public void displayLeilao_afterLoadAPI() throws IOException {
+
+        String produto1 = faker.commerce().productName();
+        setupDataAndLaunch(
+                new Leilao(produto1)
+        );
+
+        onView(withText(produto1))
+                .check(matches(isDisplayed()));
+    }
+
+    @Test
+    public void displayTwoLeiloes_afterLoadAP() throws IOException {
+
+        String produto1 = faker.commerce().productName();
+        String produto2 = faker.commerce().productName();
+
+        setupDataAndLaunch(
+                new Leilao(produto1),
+                new Leilao(produto2)
+        );
+
+        onView(withText(produto1))
+                .check(matches(isDisplayed()));
+        onView(withText(produto2))
+                .check(matches(isDisplayed()));
+    }
+
+    @After
+    public void tearDown() throws IOException {
+        IdlingRegistry.getInstance().unregister(AppIdlingResource.getIdlingResource());
+        cleanDB();
+        if (scenario != null) {
+            scenario.close();
+        }
+    }
+
+    private void salvarLeilao(Leilao... leiloes) throws IOException {
+        for(Leilao leilao : leiloes){
+            Leilao criarLeilao = webClient.salva(leilao);
+            if(criarLeilao == null){
+                Assert.fail("Falha ao salvar o leilão na API do leilão:" + leilao.getDescricao());
+            }
+        }
+    }
+
+    private void setupDataAndLaunch(Leilao... leiloes) throws IOException {
+        salvarLeilao(leiloes);
+        scenario = ActivityScenario.launch(ListaLeilaoActivity.class);
+    }
+}

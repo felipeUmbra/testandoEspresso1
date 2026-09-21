@@ -1,0 +1,5 @@
+- `[x]` Refine `AppIdlingResource.java` to handle main thread safety
+- `[x]` Refine `LeilaoWebClient.java` to post `decrement()` to main thread
+- `[x]` Update `ListaLeilaoScreenTest.java` to launch activity manually after registration
+- `[x]` Verify build and sync
+- `[ ]` Final walkthrough
