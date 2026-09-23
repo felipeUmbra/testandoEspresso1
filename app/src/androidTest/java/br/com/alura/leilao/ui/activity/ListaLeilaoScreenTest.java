@@ -1,8 +1,12 @@
 package br.com.alura.leilao.ui.activity;
 
 import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.assertion.ViewAssertions.*;
-import static androidx.test.espresso.matcher.ViewMatchers.*;
+import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static org.hamcrest.Matchers.allOf;
+import static br.com.alura.leilao.matchers.ViewMatcher.displaysLeilaoOnPosition;
 
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.espresso.IdlingRegistry;
@@ -19,15 +23,15 @@ import org.junit.runner.RunWith;
 import java.io.IOException;
 import java.util.Locale;
 
-import br.com.alura.leilao.api.retrofit.client.TesteWebClient;
+import br.com.alura.leilao.R;
 import br.com.alura.leilao.api.idlingresource.AppIdlingResource;
+import br.com.alura.leilao.api.retrofit.client.TesteWebClient;
 import br.com.alura.leilao.model.Leilao;
 
 @RunWith(AndroidJUnit4.class)
 public class ListaLeilaoScreenTest {
 
     private ActivityScenario<ListaLeilaoActivity> scenario;
-    //private LeilaoWebClient webClient = new LeilaoWebClient();
 
     final TesteWebClient webClient = new TesteWebClient();
     final Faker faker = new Faker(new Locale("pt-BR"));
@@ -53,8 +57,8 @@ public class ListaLeilaoScreenTest {
                 new Leilao(produto1)
         );
 
-        onView(withText(produto1))
-                .check(matches(isDisplayed()));
+        onView(withId(R.id.lista_leilao_recyclerview))
+                .check(matches(displaysLeilaoOnPosition(0, produto1, "R$ 0,00")));
     }
 
     @Test
@@ -68,12 +72,30 @@ public class ListaLeilaoScreenTest {
                 new Leilao(produto2)
         );
 
-        onView(withText(produto1))
-                .check(matches(isDisplayed()));
-        onView(withText(produto2))
-                .check(matches(isDisplayed()));
+//        onView(withText(produto1))
+//                .check(matches(isDisplayed()));
+//        onView(withText(produto2))
+//                .check(matches(isDisplayed()));
+//        onView(allOf(withText(produto2),
+//                withId(R.id.item_leilao_descricao)))
+//                .check(matches(isDisplayed()));
+        onView(withId(R.id.lista_leilao_recyclerview))
+                .check(matches(displaysLeilaoOnPosition(0, produto1, "R$ 0,00")));
+        onView(withId(R.id.lista_leilao_recyclerview))
+                .check(matches(displaysLeilaoOnPosition(1, produto2, "R$ 0,00")));
     }
 
+    @Test
+    public void verificaMaiorlanceComoZero() throws IOException {
+        String produto1 = faker.commerce().productName();
+
+        setupDataAndLaunch(
+                new Leilao(produto1)
+        );
+        onView(allOf(withText("R$ 0,00"),
+                withId(R.id.item_leilao_maior_lance)))
+                .check(matches(isDisplayed()));
+    }
     @After
     public void tearDown() throws IOException {
         IdlingRegistry.getInstance().unregister(AppIdlingResource.getIdlingResource());
@@ -82,6 +104,7 @@ public class ListaLeilaoScreenTest {
             scenario.close();
         }
     }
+
 
     private void salvarLeilao(Leilao... leiloes) throws IOException {
         for(Leilao leilao : leiloes){
